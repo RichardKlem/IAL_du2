@@ -56,8 +56,7 @@ void BSTInit (tBSTNodePtr *RootPtr) {
 **/
 
 	
-
-	 solved = FALSE;		  /* V případě řešení smažte tento řádek! */
+    *RootPtr = NULL;
 
 }
 
@@ -152,10 +151,13 @@ void BSTDispose (tBSTNodePtr *RootPtr) {
 ** inicializaci. Tuto funkci implementujte rekurzivně bez deklarování pomocné
 ** funkce.
 **/
-	
-
-	 solved = FALSE;		  /* V případě řešení smažte tento řádek! */
-
+	if (*RootPtr != NULL)
+    {
+	    BSTDispose(&(*RootPtr->LPtr)); //rekurze smerem vlevo
+        BSTDispose(&(*RootPtr->RPtr)); //rekurze smerem vpravo
+        free(*RootPtr); //po vynoreni z rekuze uvolnim samotny uzel
+        *RootPtr = NULL; //dulezite pro prvni-krenovy uzel, kdyz provedu vzdy, tak nevadi, nemusim si nic pocitat
+    }
 }
 
 /* konec c401.c */
