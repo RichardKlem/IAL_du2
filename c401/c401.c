@@ -140,15 +140,15 @@ void ReplaceByRightmost (tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr) {
 **/
     if((*RootPtr)->RPtr != NULL)
     {
-        ReplaceByRightmost(PtrReplaced, &(*RootPtr)->RPtr);
+        ReplaceByRightmost(PtrReplaced, &(*RootPtr)->RPtr); //hledam nejpravejsi uzel
     }
     else
     {
-        tBSTNodePtr *tmp_node_ptr = RootPtr;
+        tBSTNodePtr tmp_node_ptr = *RootPtr; // ulozeni konkretniho objektu
         PtrReplaced->BSTNodeCont = (*RootPtr)->BSTNodeCont; // nahrazeni promennych
         PtrReplaced->Key = (*RootPtr)->Key;
         *RootPtr = (*RootPtr)->LPtr; // posunu podstrom k otci
-        free(*tmp_node_ptr); // uvolnim onen nejpravejsi uzel
+        free(tmp_node_ptr); // uvolnim onen nejpravejsi uzel
     }
 }
 
