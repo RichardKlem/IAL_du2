@@ -74,11 +74,20 @@ int BSTSearch (tBSTNodePtr RootPtr, char K, int *Content)	{
 ** problém řešte rekurzivním volání této funkce, přičemž nedeklarujte žádnou
 ** pomocnou funkci.
 **/
+    if(RootPtr == NULL)
+        return FALSE;
 
-	
+    if(RootPtr->Key == K)
+    {
+        *Content = RootPtr->BSTNodeCont;
+        return TRUE;
+    }
 
-	 solved = FALSE;		  /* V případě řešení smažte tento řádek! */
+    else if(RootPtr->Key > K)
+        return BSTSearch(RootPtr->LPtr, K, Content);
 
+    else
+        return BSTSearch(RootPtr->RPtr, K, Content);
 }
 
 
@@ -98,11 +107,23 @@ void BSTInsert (tBSTNodePtr* RootPtr, char K, int Content)	{
 ** rychlosti, tak z hlediska paměťových nároků. Zde jde ale o školní
 ** příklad, na kterém si chceme ukázat eleganci rekurzivního zápisu.
 **/
+    if((*RootPtr) == NULL)
+    {
+        *RootPtr = malloc(sizeof(tBSTNodePtr));
+        (*RootPtr)->Key = K;
+        (*RootPtr)->LPtr = NULL;
+        (*RootPtr)->RPtr = NULL;
+        (*RootPtr)->BSTNodeCont = Content;
+    }
 
-	
+    else if((*RootPtr)->Key == K)
+        (*RootPtr)->BSTNodeCont = Content;
 
-	 solved = FALSE;		  /* V případě řešení smažte tento řádek! */
+    else if((*RootPtr)->Key > K) // vkladany prvek je mensi
+        BSTInsert(&((*RootPtr)->LPtr), K, Content);
 
+    else // vkladany prvek je vetsi
+        BSTInsert(&((*RootPtr)->RPtr), K, Content);
 }
 
 void ReplaceByRightmost (tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr) {
@@ -117,11 +138,18 @@ void ReplaceByRightmost (tBSTNodePtr PtrReplaced, tBSTNodePtr *RootPtr) {
 ** Tato pomocná funkce bude použita dále. Než ji začnete implementovat,
 ** přečtěte si komentář k funkci BSTDelete().
 **/
-
-	
-
-	 solved = FALSE;		  /* V případě řešení smažte tento řádek! */
-
+    if((*RootPtr)->RPtr != NULL)
+    {
+        ReplaceByRightmost(PtrReplaced, &(*RootPtr)->RPtr);
+    }
+    else
+    {
+        tBSTNodePtr *tmp_node_ptr = RootPtr;
+        PtrReplaced->BSTNodeCont = (*RootPtr)->BSTNodeCont; // nahrazeni promennych
+        PtrReplaced->Key = (*RootPtr)->Key;
+        *RootPtr = (*RootPtr)->LPtr; // posunu podstrom k otci
+        free(*tmp_node_ptr); // uvolnim onen nejpravejsi uzel
+    }
 }
 
 void BSTDelete (tBSTNodePtr *RootPtr, char K) 		{
@@ -136,11 +164,42 @@ void BSTDelete (tBSTNodePtr *RootPtr, char K) 		{
 ** Tuto funkci implementujte rekurzivně s využitím dříve deklarované
 ** pomocné funkce ReplaceByRightmost.
 **/
+    if(RootPtr == NULL || (*RootPtr) == NULL) // pokud je ukazatel nebo ukazatel na ukazatel NULL, nic se nedeje
+        return;
 
-	
+    /*else if((*RootPtr)->LPtr == NULL && (*RootPtr)->RPtr == NULL && (*RootPtr)->Key == K) // je listovy uzel
+    {
+        free(*RootPtr);
+    }*/
+    else if((*RootPtr)->Key > K)        // je mensi, jdu doleva
+        BSTDelete(&(*RootPtr)->LPtr, K);
 
-	 solved = FALSE;		  /* V případě řešení smažte tento řádek! */
+    else if((*RootPtr)->Key < K)        // je vetsi, jdu doprava
+        BSTDelete(&(*RootPtr)->RPtr, K);
 
+    else if((*RootPtr)->LPtr != NULL && (*RootPtr)->RPtr != NULL) // Key = K a zaroven ma dva podstromy
+    {
+        ReplaceByRightmost(*RootPtr, &(*RootPtr)->LPtr); // podminky pro funkci ReplacebyRughtmost jsou uz overeny
+    }
+
+    else if((*RootPtr)->LPtr != NULL)  // ma jen leveho
+    {
+        tBSTNodePtr tmp_tree_ptr = *RootPtr; //predam alokovany objekt
+        *RootPtr = (*RootPtr)->LPtr; //aktualni ktery je mazany tedy nahradim jeho podstromem
+        free(tmp_tree_ptr); //zrusim objekt
+    }
+
+    else if((*RootPtr)->RPtr != NULL) // ma jen praveho
+    {
+        tBSTNodePtr tmp_tree_ptr = *RootPtr;
+        *RootPtr = (*RootPtr)->RPtr;
+        free(tmp_tree_ptr);
+    }
+    else if((*RootPtr)->Key == K)
+    {
+        free(*RootPtr);
+        *RootPtr = NULL;
+    }
 }
 
 void BSTDispose (tBSTNodePtr *RootPtr) {
@@ -153,8 +212,8 @@ void BSTDispose (tBSTNodePtr *RootPtr) {
 **/
 	if (*RootPtr != NULL)
     {
-	    BSTDispose(&(*RootPtr->LPtr)); //rekurze smerem vlevo
-        BSTDispose(&(*RootPtr->RPtr)); //rekurze smerem vpravo
+	    BSTDispose(&((*RootPtr)->LPtr)); //rekurze smerem vlevo
+        BSTDispose(&((*RootPtr)->RPtr)); //rekurze smerem vpravo
         free(*RootPtr); //po vynoreni z rekuze uvolnim samotny uzel
         *RootPtr = NULL; //dulezite pro prvni-krenovy uzel, kdyz provedu vzdy, tak nevadi, nemusim si nic pocitat
     }
