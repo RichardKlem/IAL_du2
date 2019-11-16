@@ -65,8 +65,9 @@ int hashCode ( tKey key ) {
 */
 
 void htInit ( tHTable* ptrht ) {
-
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    int i = 0;
+    while(i++ < HTSIZE)
+        (*ptrht)[i] = NULL;
 }
 
 /* TRP s explicitně zřetězenými synonymy.
@@ -77,8 +78,14 @@ void htInit ( tHTable* ptrht ) {
 */
 
 tHTItem* htSearch ( tHTable* ptrht, tKey key ) {
-
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    tHTItem * item_ptr = (*ptrht)[hashCode(key)];
+    while(item_ptr != NULL)
+    {
+        if(strcmp(item_ptr->key, key) == 0)
+            return item_ptr;
+        item_ptr = item_ptr->ptrnext;
+    }
+    return NULL;
 }
 
 /*
@@ -94,8 +101,26 @@ tHTItem* htSearch ( tHTable* ptrht, tKey key ) {
 **/
 
 void htInsert ( tHTable* ptrht, tKey key, tData data ) {
+    tHTItem *item = htSearch(ptrht, key);
+    if(item != NULL) // prvek v tabulce neni
+    {
+        item->data = data;
+        return;
+    }
+    else
+    {
+        tHTItem *new_item = (tHTItem *) malloc(sizeof(tHTItem));
+        if(new_item == NULL)
+            exit(-42);
+        new_item->data = data;
+        new_item->key = key;
+        new_item->ptrnext = NULL;
 
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+        tHTItem * existing = (*ptrht)[hashCode(key)];
+        if(existing)
+            new_item->ptrnext = item;
+        existing = new_item;
+    }
 }
 
 /*
@@ -108,8 +133,10 @@ void htInsert ( tHTable* ptrht, tKey key, tData data ) {
 */
 
 tData* htRead ( tHTable* ptrht, tKey key ) {
-
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    tHTItem * item = htSearch(ptrht, key);
+    if(item == NULL)
+        return NULL;
+    return &(item->data);
 }
 
 /*
@@ -123,8 +150,31 @@ tData* htRead ( tHTable* ptrht, tKey key ) {
 */
 
 void htDelete ( tHTable* ptrht, tKey key ) {
+    tHTItem *item = (*ptrht)[hashCode(key)]; //mam polozku s klicem, ale muze byt vic synonym
+    if(ptrht == NULL || item == NULL)
+        return;
 
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    tHTItem *prev_item = NULL;
+    tHTItem *next_item = NULL;
+    while(item)
+    {
+        next_item = item->ptrnext;
+        if(strcmp(item->key, key) == 0)
+        {
+            free(item);
+
+            if(prev_item != NULL)
+            {
+                (*ptrht)[hashCode(key)] = next_item;
+                return;
+            }
+
+            prev_item->ptrnext = next_item;
+            return;
+        }
+        prev_item = item;
+        item = next_item;
+    }
 }
 
 /* TRP s explicitně zřetězenými synonymy.
@@ -133,6 +183,19 @@ void htDelete ( tHTable* ptrht, tKey key ) {
 */
 
 void htClearAll ( tHTable* ptrht ) {
+    tHTItem *item;
 
- solved = 0; /*v pripade reseni, smazte tento radek!*/
+    int i = 0;
+    while(i++ < HTSIZE) //prochazi polozky tabulky
+    {
+        item = (*ptrht)[i];
+        tHTItem *tmp_item;
+        while(item) //prochazi synonyma
+        {
+            tmp_item = item;
+            item = item->ptrnext;
+            free(tmp_item);
+        }
+        (*ptrht)[i] = NULL; //nahrada za htInit()
+    }
 }
