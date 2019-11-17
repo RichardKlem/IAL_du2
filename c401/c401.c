@@ -54,10 +54,7 @@ void BSTInit (tBSTNodePtr *RootPtr) {
 ** Proto je třeba při přiřazení přes RootPtr použít dereferenční operátor *.
 ** Ten bude použit i ve funkcích BSTDelete, BSTInsert a BSTDispose.
 **/
-
-	
     *RootPtr = NULL;
-
 }
 
 int BSTSearch (tBSTNodePtr RootPtr, char K, int *Content)	{
@@ -107,9 +104,11 @@ void BSTInsert (tBSTNodePtr* RootPtr, char K, int Content)	{
 ** rychlosti, tak z hlediska paměťových nároků. Zde jde ale o školní
 ** příklad, na kterém si chceme ukázat eleganci rekurzivního zápisu.
 **/
-    if((*RootPtr) == NULL)
+    if((*RootPtr) == NULL)//strom je prazdny
     {
-        *RootPtr = malloc(sizeof(tBSTNodePtr));
+        *RootPtr = (tBSTNodePtr) malloc(sizeof(struct tBSTNode));
+        if(*RootPtr == NULL)
+            return;
         (*RootPtr)->Key = K;
         (*RootPtr)->LPtr = NULL;
         (*RootPtr)->RPtr = NULL;
@@ -167,10 +166,6 @@ void BSTDelete (tBSTNodePtr *RootPtr, char K) 		{
     if(RootPtr == NULL || (*RootPtr) == NULL) // pokud je ukazatel nebo ukazatel na ukazatel NULL, nic se nedeje
         return;
 
-    /*else if((*RootPtr)->LPtr == NULL && (*RootPtr)->RPtr == NULL && (*RootPtr)->Key == K) // je listovy uzel
-    {
-        free(*RootPtr);
-    }*/
     else if((*RootPtr)->Key > K)        // je mensi, jdu doleva
         BSTDelete(&(*RootPtr)->LPtr, K);
 
