@@ -65,7 +65,7 @@ int hashCode ( tKey key ) {
 */
 
 void htInit ( tHTable* ptrht ) {
-    int i = 0;
+    int i = -1;
     while(i++ < HTSIZE)
         (*ptrht)[i] = NULL;
 }
@@ -111,15 +111,15 @@ void htInsert ( tHTable* ptrht, tKey key, tData data ) {
     {
         tHTItem *new_item = (tHTItem *) malloc(sizeof(tHTItem));
         if(new_item == NULL)
-            exit(-42);
+            return;
         new_item->data = data;
         new_item->key = key;
         new_item->ptrnext = NULL;
 
         tHTItem * existing = (*ptrht)[hashCode(key)];
         if(existing)
-            new_item->ptrnext = item;
-        existing = new_item;
+            new_item->ptrnext = (*ptrht)[hashCode(key)];
+        (*ptrht)[hashCode(key)] = new_item;
     }
 }
 
@@ -150,25 +150,25 @@ tData* htRead ( tHTable* ptrht, tKey key ) {
 */
 
 void htDelete ( tHTable* ptrht, tKey key ) {
-    tHTItem *item = (*ptrht)[hashCode(key)]; //mam polozku s klicem, ale muze byt vic synonym
+    tHTItem *item = (*ptrht)[hashCode(key)]; //mam polozku s hashem jaky bych chtel, ale muze byt vic synonym
     if(ptrht == NULL || item == NULL)
         return;
 
     tHTItem *prev_item = NULL;
     tHTItem *next_item = NULL;
-    while(item)
+    while(item) //dokud je v poli synonym nejaka polozka
     {
         next_item = item->ptrnext;
-        if(strcmp(item->key, key) == 0)
+        if(strcmp(item->key, key) == 0) //nasel jsem polozku s klicem
         {
             free(item);
 
-            if(prev_item != NULL)
+            if(prev_item == NULL) //smazana polozka byla prvni
             {
-                (*ptrht)[hashCode(key)] = next_item;
+                (*ptrht)[hashCode(key)] = next_item; // na jeji pozici ulozim nasledujici synonymum
                 return;
             }
-
+            //smazana polozka NEbyla prvni, takze musim "slinkovat" zbytek
             prev_item->ptrnext = next_item;
             return;
         }
@@ -185,7 +185,7 @@ void htDelete ( tHTable* ptrht, tKey key ) {
 void htClearAll ( tHTable* ptrht ) {
     tHTItem *item;
 
-    int i = 0;
+    int i = -1;
     while(i++ < HTSIZE) //prochazi polozky tabulky
     {
         item = (*ptrht)[i];
