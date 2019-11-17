@@ -39,6 +39,7 @@
 */
 
 #include "c016.h"
+#include <stdio.h>
 
 int HTSIZE = MAX_HTSIZE;
 int solved;
@@ -66,8 +67,8 @@ int hashCode ( tKey key ) {
 
 void htInit ( tHTable* ptrht ) {
     int i = -1;
-    while(i++ < HTSIZE)
-        (*ptrht)[i] = NULL;
+    while(i++ < HTSIZE - 1) //jede se od -1 do n-1, ale n-1 se uz neprovede, protoze dojde v tele k inkrementu
+        (*ptrht)[i] = NULL; // tady to je od 0 do n-1
 }
 
 /* TRP s explicitně zřetězenými synonymy.
@@ -186,7 +187,7 @@ void htClearAll ( tHTable* ptrht ) {
     tHTItem *item;
 
     int i = -1;
-    while(i++ < HTSIZE) //prochazi polozky tabulky
+    while(i++ < HTSIZE - 1) //prochazi polozky tabulky
     {
         item = (*ptrht)[i];
         tHTItem *tmp_item;
