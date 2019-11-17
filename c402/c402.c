@@ -328,17 +328,17 @@ void BTPostorder (tBTNodePtr RootPtr)	{
     {
         RootPtr= STopPopP(&s1);
         zleva= STopPopB(&sb1);
-        if(zleva) //přichází zleva, půjde doprava
+        if(zleva)
         {
             SPushB(&sb1, FALSE);
             SPushP(&s1, RootPtr);
             Leftmost_Postorder(RootPtr->RPtr, &s1, &sb1);
         }
-        else //zprava, odstraní a zpracuje uzel
+        else
         {
             BTWorkOut(RootPtr);
-        } //if
-    }// while
+        }
+    }
 }
 
 
